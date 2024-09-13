@@ -1,4 +1,5 @@
 # Importing modules
+import base64
 import numpy as np
 import streamlit as st
 import cv2
@@ -149,33 +150,32 @@ def detect_emotion(image):
 
     return emotions_detected
 
-# Streamlit app
-page_bg_img = '''
+#streamlit
+
+def image_to_base64(image_path):
+    with open(image_path, "rb") as img_file:
+        return base64.b64encode(img_file.read()).decode('utf-8')
+
+image_base64 = image_to_base64("bg.jpg")
+
+page_bg_img = f'''
 <style>
-body {
-    background-image: url("https://unsplash.com/photos/round-black-vinyl-disc-on-vinyl-player-5gn2soeAc40");
+body {{
+    background-image: url("data:image/jpeg;base64,{image_base64}");
     background-size: cover;
-}
+}}
 </style>
 '''
+
+
 st.markdown(page_bg_img, unsafe_allow_html=True)
 st.markdown("<h2 style='text-align: center; color: white'><b>Emotion Based Music Recommendation</b></h2>", unsafe_allow_html=True)
 st.markdown("<h5 style='text-align: center; color: grey;'><b>Select emotions to get music recommendations</b></h5>", unsafe_allow_html=True)
-
-# Sidebar for emotion selection
-st.sidebar.header("Select Emotions")
-emotions = ['Angry', 'Fear', 'Happy', 'Neutral', 'Sad']
-selected_emotions = st.sidebar.multiselect("Select Emotions", options=emotions)
 
 # Option to upload image for emotion detection
 uploaded_file = st.sidebar.file_uploader("Upload an image", type=['jpg', 'png', 'jpeg'])
 # # Add this to the sidebar for webcam capture
 webcam_option = st.sidebar.checkbox("Use Webcam")
-
-
-
-# Add this to the sidebar for webcam capture
-webcam_option = st.sidebar.checkbox("Use Webcam", key="webcam checkbox")
 
 if webcam_option:
     st.sidebar.write("Click the button below to start the webcam.")
@@ -184,7 +184,8 @@ if webcam_option:
     if camera_image is not None:
         # Convert the captured image to a format that OpenCV can handle
         file_bytes = np.asarray(bytearray(camera_image.read()), dtype=np.uint8)
-        image = cv2.imdecode(file_bytes, 1)
+        image = cv2.imdecode(np.frombuffer(file_bytes, np.uint8), cv2.IMREAD_COLOR)
+
         
         if image is not None:
             detected_emotions = detect_emotion(image)
@@ -197,33 +198,35 @@ if st.sidebar.button('Get Recommendations'):
     if webcam_option and camera_image is not None:
         # Process captured image
         image = np.asarray(bytearray(camera_image.read()), dtype=np.uint8)
-        image = cv2.imdecode(image, 1)
+        image = cv2.imdecode(np.frombuffer(file_bytes, np.uint8), cv2.IMREAD_COLOR)
         detected_emotions = detect_emotion(image)
         st.write("Detected Emotions: ", detected_emotions)
     elif uploaded_file is not None:
         # Process uploaded image
         file_bytes = np.asarray(bytearray(uploaded_file.read()), dtype=np.uint8)
-        image = cv2.imdecode(file_bytes, 1)
+        image = cv2.imdecode(np.frombuffer(file_bytes, np.uint8), cv2.IMREAD_COLOR)
+
         detected_emotions = detect_emotion(image)
         st.write("Detected Emotions: ", detected_emotions)
-    else:
-        st.warning("Please upload an image or use the webcam.")
     
-    if selected_emotions:
+    if detected_emotions:
         # Get music recommendations
-        new_df = fun(selected_emotions)
+        
+        new_df = fun(detected_emotions)
         st.write("")
         st.markdown("<h5 style='text-align: center; color: grey;'><b>Recommended Songs with Artist Names</b></h5>", unsafe_allow_html=True)
         st.write("")
-
-        # Display recommendations
-        for index, row in new_df.iterrows():
-            st.write(f"**{row['name']}** by {row['artist']}")
-            st.markdown(f"[Listen Here]({row['link']})")
-            st.write("")
+        if not new_df.empty:
+            for index, row in new_df.iterrows():
+             st.write(f"**{row['name']}** by {row['artist']}")
+             st.markdown(f"[Listen Here]({row['link']})")
+        else:
+            st.write("No recommendations available for the detected emotions.")
+else:
+    st.warning("Please upload an image or use the webcam to detect emotions and get recommendations.")
 
 
 # Footer
 st.markdown("<br><br>", unsafe_allow_html=True)
-st.markdown("<h6 style='text-align: center; color: white;'>Created by Jasmine</h6>", unsafe_allow_html=True)
+st.markdown("<h6 style='text-align: center; color: white;'>Created by Jasmine Borse.</h6>", unsafe_allow_html=True)
 
