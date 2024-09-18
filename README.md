@@ -85,7 +85,7 @@ Refer to `requirements.txt` for a complete list of dependencies.
 ##Output Images
 Have a look at the project here:
 
-[PDF](https://github.com/JasmineBorse/emotion-based-music-recommendation/raw/main/Output_pdf_emotion_based_music_rec.pdf)
+[PDF](https://github.com/JasmineBorse/Emotion-based-music-recommendation/raw/main/Output_pdf_emotion_based_music_rec.pdf)
 
 
 
