@@ -82,7 +82,7 @@ The Emotion-Based Music Recommendation System is an interactive application that
 
 Refer to `requirements.txt` for a complete list of dependencies.
 
-##Output Images
+## Output Images
 Have a look at the project here:
 
 [PDF](https://github.com/JasmineBorse/Emotion-based-music-recommendation/blob/main/Output_pdf_emotion_based_music%20_rec.pdf)
